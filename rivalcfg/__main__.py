@@ -102,7 +102,7 @@ def main(args=sys.argv[1:]):
     # Print firmware and exit
     if hasattr(settings, "FIRMWARE_VERSION") and settings.FIRMWARE_VERSION:
         print("%s (firmware v%s)" % (mouse.name, mouse.firmware_version))
-        sys.exit(0)
+        return
 
     # Print battery level and exit
     if hasattr(settings, "BATTERY_LEVEL") and settings.BATTERY_LEVEL:
@@ -113,7 +113,7 @@ def main(args=sys.argv[1:]):
                 battery_info["is_charging"],
             )
         )
-        sys.exit(0)
+        return
 
     # Reset
     if mouse and settings.RESET:
