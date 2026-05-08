@@ -35,6 +35,7 @@ def test(session):
             "RIVALCFG_DEBUG_NO_COMMAND_DELAY": "1",
         },
     )
+    session.run("python", "./test/devices/device_profiles_test.py")
 
 
 @nox.session(reuse_venv=True)
