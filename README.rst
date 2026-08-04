@@ -54,7 +54,7 @@ Changelog
 
 * **[NEXT]** (changes on ``master`` that have not been released yet):
 
-  * Nothing yet ;)
+  * misc(test): New E2E tests for devices (@flozz)
 
 * **v4.17.0:**
 
