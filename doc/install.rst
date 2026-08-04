@@ -25,7 +25,7 @@ Installation requires a complete Python 3 installation that contains the ``ven
     # Solus
     # Nothing to install
 
-In some rare cases, you may need additional dependencies to build ``hidapi`` package if now wheel (binary pakage) is available for your system. You can install everything required with following commands::
+In some rare cases, you may need additional dependencies to build ``hidapi`` package if no wheel (binary pakage) is available for your system. You can install everything required with following commands::
 
     # Debian / Ubuntu
     sudo apt install build-essential python3-dev libusb-1.0-0-dev libudev-dev
@@ -111,7 +111,7 @@ macOS
 Prerequisites
 ~~~~~~~~~~~~~
 
-On macOS, **you may not need any requirement**. But in some cases you may need a compiler to build the ``hidapi`` package if now wheel (binary pakage) is available for your system and Python version.
+On macOS, **you may not need any requirement**. But in some cases you may need a compiler to build the ``hidapi`` package if no wheel (binary pakage) is available for your system and Python version.
 
 You should be able to install XCode with the following command::
 
@@ -188,7 +188,7 @@ On Windows, you have to install Python first:
 * **IMPORTANT:** During the installation process, check the "Add Python X.Y to PATH" checkbox.
 * Finally reboot your computer to complete the installation.
 
-It should be enough to install and run Rivalcfg, but in some cases you may need to install additional tools to build the ``hidapi`` package if not wheel (binary package) is available for your system:
+It should be enough to install and run Rivalcfg, but in some cases you may need to install additional tools to build the ``hidapi`` package if no wheel (binary package) is available for your system:
 
 * Visual C++ 2015 Build Tools: https://www.microsoft.com/en-us/download/details.aspx?id=48159
 

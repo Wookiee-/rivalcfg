@@ -28,6 +28,10 @@ def _check_linux():
     if "--update-udev" in sys.argv:
         return
 
+    # Skip check if DRY debug mode enabled
+    if "RIVALCFG_DRY" in os.environ:
+        return
+
     if not os.path.isfile(udev.RULES_FILE_PATH):
         sys.stderr.write(
             "W: udev rules are not installed. You may not be able to open the device using a regular user.\n"
@@ -98,7 +102,7 @@ def main(args=sys.argv[1:]):
     # Print firmware and exit
     if hasattr(settings, "FIRMWARE_VERSION") and settings.FIRMWARE_VERSION:
         print("%s (firmware v%s)" % (mouse.name, mouse.firmware_version))
-        sys.exit(0)
+        return
 
     # Print battery level and exit
     if hasattr(settings, "BATTERY_LEVEL") and settings.BATTERY_LEVEL:
@@ -109,7 +113,7 @@ def main(args=sys.argv[1:]):
                 battery_info["is_charging"],
             )
         )
-        sys.exit(0)
+        return
 
     # Reset
     if mouse and settings.RESET:

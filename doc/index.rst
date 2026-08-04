@@ -36,6 +36,7 @@ Sensei, Aerox, Prime,...).
    ./env.rst
    ./devices/index.rst
    ./python_api/index.rst
+   ./devices_tests.rst
    ./faq.rst
    ./contributing.rst
    ./build/index.rst
