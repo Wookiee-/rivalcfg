@@ -1,2 +1,2 @@
-nuitka==4.0.1
+nuitka==4.1.3
 dmgbuild[badge_icons]==1.6.7
