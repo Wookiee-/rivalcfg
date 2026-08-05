@@ -56,6 +56,7 @@ Changelog
 
   * feat(device): Added support for for querying the firmware version on Rival 3 Wireless (1038:1830) (@flozz)
   * misc(test): New E2E tests for devices (@flozz)
+  * misc(standalone): Windows standalone build is now using Python 3.14 (@flozz)
 
 * **v4.17.0:**
 
