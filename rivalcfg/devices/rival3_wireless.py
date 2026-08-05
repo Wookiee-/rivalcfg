@@ -79,4 +79,9 @@ profile = {
         "report_type": usbhid.HID_REPORT_TYPE_OUTPUT,
         "command": [0x09],
     },
+    "firmware_version": {
+        "report_type": usbhid.HID_REPORT_TYPE_OUTPUT,
+        "command": [0x90, 0x00],
+        "response_length": 2,
+    },
 }
