@@ -178,7 +178,9 @@ class DeviceProfileTest:
 
         for test in self._tests:
             self._rivalcfg_stdout.seek(0)
+            self._rivalcfg_stdout.truncate()
             self._rivalcfg_stderr.seek(0)
+            self._rivalcfg_stderr.truncate()
 
             # Redirect stdout/stderr to read logged packets and errors
             sys.stdout = self._rivalcfg_stdout
