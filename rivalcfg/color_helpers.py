@@ -121,10 +121,18 @@ def parse_color_gradient_string(gradient):
     Traceback (most recent call last):
         ...
     ValueError: invalid color gradient 'hello'. ...
+    >>> parse_color_gradient_string("50: red: 00f")  # extra ':' in a stop
+    Traceback (most recent call last):
+        ...
+    ValueError: invalid color gradient '50:red:00f'. ...
+    >>> parse_color_gradient_string("50: red,")  # trailing separator
+    Traceback (most recent call last):
+        ...
+    ValueError: invalid color gradient '50:red,'. ...
     """
     gradient = gradient.replace(" ", "").replace("%", "")
 
-    if not re.match(r"[0-9-]+:[a-zA-Z0-9#]+(,[0-9]+:[a-zA-Z0-9#]+)*", gradient):
+    if not re.fullmatch(r"[0-9-]+:[a-zA-Z0-9#]+(,[0-9-]+:[a-zA-Z0-9#]+)*", gradient):
         raise ValueError(
             "invalid color gradient '%s'. It must looks like '<POS1>:<COLOR1>,<POS2>:<COLOR2>,...'"
             % gradient
