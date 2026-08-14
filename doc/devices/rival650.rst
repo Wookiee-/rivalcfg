@@ -15,13 +15,20 @@ The following feature are currently not supported by Rivalcfg:
 
 * Color / illumination
 * Wheel mapping
-* Lifting distance configuration
 
 
 Command-Line Usage
 ------------------
 
 .. rivalcfg_device_cli:: rival650
+
+
+Lift-Off Distance
+-----------------
+
+The lift-off distance can be set from 1 (low) to 8 (high). Example::
+
+    rivalcfg --lift-off-distance 1
 
 
 Buttons

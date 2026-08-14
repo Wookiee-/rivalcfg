@@ -54,6 +54,40 @@
 < 02 00 | 17 01
 < 02 00 | 09
 
+# ==== Lift-off distance ====
+
+--lift-off-distance 1
+< 02 00 | 20 01 74 78
+< 02 00 | 09
+
+--lift-off-distance 2
+< 02 00 | 20 01 6F 73
+< 02 00 | 09
+
+--lift-off-distance 3
+< 02 00 | 20 01 6A 6E
+< 02 00 | 09
+
+--lift-off-distance 4
+< 02 00 | 20 01 65 69
+< 02 00 | 09
+
+--lift-off-distance 5
+< 02 00 | 20 01 60 64
+< 02 00 | 09
+
+--lift-off-distance 6
+< 02 00 | 20 01 5B 5F
+< 02 00 | 09
+
+--lift-off-distance 7
+< 02 00 | 20 01 56 5A
+< 02 00 | 09
+
+--lift-off-distance 8
+< 02 00 | 20 01 51 55
+< 02 00 | 09
+
 # ==== Button mapping ====
 
 --buttons default
