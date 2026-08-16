@@ -54,7 +54,8 @@ Changelog
 
 * **[NEXT]** (changes on ``master`` that have not been released yet):
 
-  * feat(device): Added support for for querying the firmware version on Rival 3 Wireless (1038:1830) (@flozz)
+  * feat(device): Added support for lift-off distance setting on the Rival 650 (1038:172b) (@MAbbara, #288)
+  * feat(device): Added support for querying the firmware version on Rival 3 Wireless (1038:1830) (@flozz)
   * fix(color_helpers): Fixed color-gradient validation (@eeshsaxena, #287)
   * misc(test): New E2E tests for devices (@flozz)
   * misc(standalone): Windows standalone build is now using Python 3.14 (@flozz)
