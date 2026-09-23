@@ -14,7 +14,6 @@ QTabBar::tab:selected { background: #4a545b; color: white; }
 QSlider::groove:horizontal { height: 4px; background: #b3541e; }
 QSlider::handle:horizontal { width: 14px; background: #e8ecef; border-radius: 7px; margin: -6px 0; }
 QStatusBar { background: #22282d; }
-#diagramStage { background: #e8eaed; border-radius: 10px; }
-#diagramStage QLabel { color: #333; }
+#diagramStage { background: #1e2429; border-radius: 10px; border: 1px solid #454e55; }
 #footnote { color: #8a949a; font-size: 11px; }
 QGroupBox { spacing: 4px; }

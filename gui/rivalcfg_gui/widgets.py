@@ -31,8 +31,25 @@ class AspectSvgWidget(QWidget):
         self._renderer = QSvgRenderer(self) if HAS_SVG else None
         self.setMinimumSize(280, 260)
 
-    def load(self, path):
-        if self._renderer and path:
+    def load(self, path, label_color=None):
+        if not (self._renderer and path):
+            return
+        try:
+            with open(path, "rb") as f:
+                data = f.read()
+            if label_color:
+                import re
+                text = data.decode("utf-8", "replace")
+                # Recolor only <text> labels (e.g. Button1) so they stay
+                # readable; mouse shapes/leader strokes are untouched.
+                def _fix_text(m):
+                    return m.group(0).replace("#000000", label_color).replace("#000", label_color)
+                text = re.sub(r"<text\b.*?</text>", _fix_text, text, flags=re.DOTALL)
+                data = text.encode("utf-8")
+            from PySide6.QtCore import QByteArray
+            self._renderer.load(QByteArray(data))
+            self.update()
+        except Exception:
             self._renderer.load(path)
             self.update()
 
@@ -80,9 +97,17 @@ class MouseDiagram(QWidget):
         layout.addWidget(self._stage, 1)
 
     def load(self, profile_name):
+        from PySide6.QtGui import QGuiApplication
+        # White labels on dark stages (GG look), black on light — follows
+        # the actual system/forced theme instead of hardcoded SVG black.
+        try:
+            win_color = QGuiApplication.palette().window().color()
+            dark = win_color.lightness() < 128
+        except Exception:
+            dark = True
         path = diagram.get_diagram_svg(profile_name or "")
         if path and self._svg:
-            self._svg.load(path)
+            self._svg.load(path, label_color="#ffffff" if dark else "#000000")
             self._svg.show()
             self._fallback.hide()
             self.setToolTip(f"Diagram: {path}")
