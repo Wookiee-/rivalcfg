@@ -1,0 +1,14 @@
+[Unit]
+Description=Re-apply rivalcfg GUI mouse settings (survive reboot)
+After=graphical-session.target
+# Also runs headless (no display) — safe if no mouse plugged.
+
+[Service]
+Type=oneshot
+# Re-applies ~/.config/rivalcfg-gui/last-applied/*.json to plugged mice.
+# PYTHONPATH covers a git-checkout install; replace with your venv path if needed.
+ExecStart=/usr/bin/python3 -m rivalcfg_gui.apply_last
+RemainAfterExit=no
+
+[Install]
+WantedBy=default.target

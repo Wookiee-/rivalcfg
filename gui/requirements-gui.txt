@@ -1,0 +1,4 @@
+PySide6>=6.6
+hidapi>=0.14.0
+# rivalcfg itself is the parent package in this repo (pip install -e .).
+# For standalone installs: pip install rivalcfg>=4.17.0

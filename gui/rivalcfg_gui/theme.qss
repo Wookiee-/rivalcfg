@@ -1,0 +1,16 @@
+/* GG-like dark theme for rivalcfg GUI */
+QMainWindow, QWidget { background: #2b3238; color: #d7dde2; font-size: 13px; }
+QGroupBox { border: 1px solid #454e55; border-radius: 6px; margin-top: 14px; color: #f0f3f5; font-weight: bold; }
+QGroupBox::title { subcontrol-origin: margin; left: 8px; padding: 0 4px; }
+QLabel { color: #cfd6db; }
+QLineEdit, QTextEdit, QComboBox { background: #1e2429; border: 1px solid #4a545b; border-radius: 4px; padding: 4px; color: #eef2f5; }
+QPushButton { background: #3a434a; border: 1px solid #565f66; border-radius: 4px; padding: 6px 10px; color: #f2f5f7; }
+QPushButton:hover { background: #454f57; }
+QPushButton:disabled { color: #7d878d; background: #31373c; }
+QPushButton[text="SAVE"] { background: #b3541e; border-color: #d06a2c; font-weight: bold; }
+QTabWidget::pane { border: 1px solid #454e55; }
+QTabBar::tab { background: #343c42; padding: 8px 22px; color: #cfd6db; }
+QTabBar::tab:selected { background: #4a545b; color: white; }
+QSlider::groove:horizontal { height: 4px; background: #b3541e; }
+QSlider::handle:horizontal { width: 14px; background: #e8ecef; border-radius: 7px; margin: -6px 0; }
+QStatusBar { background: #22282d; }

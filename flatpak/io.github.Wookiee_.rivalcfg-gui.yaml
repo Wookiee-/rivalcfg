@@ -1,0 +1,47 @@
+app-id: io.github.Wookiee_.rivalcfg-gui
+runtime: org.kde.Platform
+runtime-version: "6.8"
+sdk: org.kde.Sdk
+command: rivalcfg-gui
+finish-args:
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  # HID access: rivalcfg talks to hidraw/hiddev directly.
+  # Flatpak sandboxing makes this the hard part (see note below).
+  - --device=all
+  - --talk-name=org.freedesktop.Flatpak  # for flatpak-spawn --host fallback
+modules:
+  - name: hidapi
+    sources:
+      - type: archive
+        url: https://github.com/libusb/hidapi/archive/hidapi-0.15.0.tar.gz
+        sha256: 83bf677c7d1f8a1d6ee1c18ac58f9c8e7366d0e4bb805a5d7dcfe7e327e877
+  - name: rivalcfg
+    buildsystem: simple
+    sources:
+      - type: dir
+        path: ../..
+    build-commands:
+      - pip3 install --prefix=/app --no-build-isolation .
+      - pip3 install --prefix=/app --no-build-isolation PySide6
+  - name: rivalcfg-gui
+    buildsystem: simple
+    sources:
+      - type: dir
+        path: ../../gui
+    build-commands:
+      - mkdir -p /app/share/rivalcfg-gui /app/share/applications /app/bin
+      - cp -r rivalcfg_gui /app/share/rivalcfg-gui/
+      - cp ../packaging/rivalcfg-gui.desktop /app/share/applications/io.github.Wookiee_.rivalcfg-gui.desktop
+      - sed -i 's|^Exec=.*|Exec=rivalcfg-gui|' /app/share/applications/io.github.Wookiee_.rivalcfg-gui.desktop
+      - printf '#!/bin/sh\nexec python3 /app/share/rivalcfg-gui/run_gui.py --gg "$@"\n' > /app/bin/rivalcfg-gui
+      - chmod +x /app/bin/rivalcfg-gui
+# NOTE (honest Flatpak caveat):
+# Raw hidraw access from inside the sandbox is unreliable across distros and
+# usually still needs host udev rules (`sudo rivalcfg --update-udev` on the
+# host) plus a Flatpak override. If the device can't be opened, the supported
+# fallback is: ship the Flatpak UI + talk to a tiny host helper via
+# `flatpak-spawn --host rivalcfg ...`. Piper/OpenRGB hit the same wall.
+# For now, native install.sh / RPM is the reliable path; Flatpak is provided
+# as a starting manifest, not a tested artifact.
