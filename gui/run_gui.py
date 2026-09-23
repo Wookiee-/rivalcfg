@@ -1,4 +1,4 @@
-"""Run the rivalcfg GUI:  python gui/run_gui.py [--gg] [--apply-last]"""
+"""Run the rivalcfg GUI:  python gui/run_gui.py [--gg] [--classic] [--dark] [--apply-last]"""
 
 import sys
 import os
@@ -12,6 +12,8 @@ if "--apply-last" in sys.argv:
     raise SystemExit(apply_main())
 
 # Default to GG-style layout (generic, like the screenshot); --classic for old form.
+# Theme is native/system by default for all desktop environments;
+# pass --dark (or RIVALCFG_GUI_THEME=dark) for the forced GG dark look.
 if "--classic" in sys.argv:
     from rivalcfg_gui.app import main
 else:

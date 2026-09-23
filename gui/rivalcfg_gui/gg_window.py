@@ -40,14 +40,15 @@ from .widgets import MouseDiagram, ButtonsEditor
 
 
 class GGWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, force_dark=False):
         super().__init__()
         self.setWindowTitle("rivalcfg GUI")
         self.resize(1180, 700)
         self._profile = None
         self._vid = self._pid = None
         self._rows = {}  # non-button settings
-        self._load_qss()
+        if force_dark:
+            self._load_qss()
 
         central = QWidget()
         self.setCentralWidget(central)
@@ -394,9 +395,14 @@ class GGWindow(QMainWindow):
 
 
 def main(argv=None):
+    import os
     import sys
     from PySide6.QtWidgets import QApplication
-    app = QApplication(sys.argv if argv is None else argv)
-    win = GGWindow()
+    args = sys.argv if argv is None else argv
+    # Native system theme by default (works on GNOME/XFCE/KDE/Win/macOS).
+    # Opt into the GG dark look with --dark or RIVALCFG_GUI_THEME=dark.
+    force_dark = ("--dark" in args) or (os.environ.get("RIVALCFG_GUI_THEME") == "dark")
+    app = QApplication(args)
+    win = GGWindow(force_dark=force_dark)
     win.show()
     return app.exec()
