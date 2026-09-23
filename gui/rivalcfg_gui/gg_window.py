@@ -88,18 +88,30 @@ class GGWindow(QMainWindow):
 
     # ---------- panes ----------
     def _left_pane(self):
-        box = QGroupBox("CONFIGURATIONS / ACTIONS")
+        from PySide6.QtWidgets import QScrollArea, QFrame
+        box = QGroupBox("CONFIGURATIONS / BUTTONS")
+        box.setMinimumWidth(300)
+        box.setMaximumWidth(340)
         layout = QVBoxLayout(box)
         self.config_list = QComboBox()
         self.config_list.setToolTip("Saved JSON profiles (~/.config/rivalcfg-gui/profiles/)")
         layout.addWidget(QLabel("Configuration:"))
         layout.addWidget(self.config_list)
-        self.actions_box = QVBoxLayout()
-        actions_wrap = QWidget()
-        actions_wrap.setLayout(self.actions_box)
-        layout.addWidget(QLabel("Actions (physical buttons):"))
-        layout.addWidget(actions_wrap, 1)
-        macro = QPushButton("Macro Editor (not in rivalcfg) — LAUNCH")
+        self.device_info = QLabel("")
+        self.device_info.setWordWrap(True)
+        layout.addWidget(self.device_info)
+        layout.addWidget(QLabel("Button remapping:"))
+        # Scrollable single-column remaps (like GG left ACTIONS list)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        host_wrap = QWidget()
+        self.left_buttons_host = QVBoxLayout(host_wrap)
+        self.left_buttons_host.setContentsMargins(0, 0, 0, 0)
+        scroll.setWidget(host_wrap)
+        layout.addWidget(scroll, 1)
+        self.buttons_editor = None
+        macro = QPushButton("Macro Editor — N/A")
         macro.setEnabled(False)
         macro.setToolTip("Timed macros need new reverse-engineering + a background daemon. Not exposed by rivalcfg.")
         layout.addWidget(macro)
@@ -115,12 +127,14 @@ class GGWindow(QMainWindow):
         self.tabs.addTab(self.tab_light, "Illumination")
         layout.addWidget(self.tabs)
 
-        # settings tab: diagram + button remaps (generic)
+        # settings tab: large aspect-correct diagram only (remaps live on the left)
         s_layout = QVBoxLayout(self.tab_settings)
         self.diagram = MouseDiagram()
-        s_layout.addWidget(self.diagram)
-        self.buttons_host = QVBoxLayout()
-        s_layout.addLayout(self.buttons_host, 1)
+        s_layout.addWidget(self.diagram, 1)
+        hint = QLabel("Diagram is a reference — remap on the left. ScrollUp/Down included where supported.")
+        hint.setWordWrap(True)
+        hint.setObjectName("footnote")
+        s_layout.addWidget(hint)
 
         # illumination tab: rebuilt per-device from *color/*effect/*brightness settings
         l_layout = QVBoxLayout(self.tab_light)
@@ -129,12 +143,24 @@ class GGWindow(QMainWindow):
         return box
 
     def _right_pane(self):
+        from PySide6.QtWidgets import QSpinBox
         box = QGroupBox("Performance")
+        box.setMaximumWidth(300)
         layout = QVBoxLayout(box)
-        layout.addWidget(QLabel("Mouse Sensitivity Levels"))
+        cpi_head = QHBoxLayout()
+        cpi_head.addWidget(QLabel("Sensitivity Levels"))
+        self.cpi_count = QSpinBox()
+        self.cpi_count.setMinimum(1)
+        self.cpi_count.setMaximum(5)
+        self.cpi_count.setValue(2)
+        self.cpi_count.setToolTip("Number of DPI presets (up to 5, per device)")
+        self.cpi_count.valueChanged.connect(self._apply_cpi_count)
+        cpi_head.addWidget(self.cpi_count)
+        layout.addLayout(cpi_head)
         self.cpi_edits = []
         cpi_box = QVBoxLayout()
-        for _ in range(5):  # up to 5 presets; hidden per-device as needed
+        cpi_box.setSpacing(4)
+        for _ in range(5):  # up to 5 presets; shown per-device count
             e = QLineEdit()
             e.setPlaceholderText("DPI")
             self.cpi_edits.append(e)
@@ -144,26 +170,21 @@ class GGWindow(QMainWindow):
         self.cpi_hint.setWordWrap(True)
         layout.addWidget(self.cpi_hint)
 
-        layout.addWidget(QLabel("Polling Rate"))
-        poll_row = QHBoxLayout()
+        layout.addWidget(QLabel("Polling Rate (Hz)"))
         self.poll_combo = QComboBox()
-        self.poll_slider = QSlider(Qt.Horizontal)
-        self.poll_slider.setMinimum(0)
-        self.poll_slider.setMaximum(3)
-        poll_row.addWidget(self.poll_combo, 1)
-        layout.addLayout(poll_row)
-        layout.addWidget(self.poll_slider)
+        layout.addWidget(self.poll_combo)
 
-        # GG shows these; rivalcfg does not expose them -> disabled stubs
-        for title in ("ACCELERATION / DECELERATION", "ANGLE SNAPPING"):
-            g = QGroupBox(title)
-            g.setEnabled(False)
-            g.setToolTip("Not exposed by rivalcfg firmware profiles. Would need new reverse-engineering.")
-            gl = QVBoxLayout(g)
-            gl.addWidget(QLabel("Not supported on this device via rivalcfg."))
-            layout.addWidget(g)
+        # GG shows these; rivalcfg does not expose them -> single small footnote
+        note = QLabel("Acceleration / angle snapping: not exposed by rivalcfg on any device.")
+        note.setWordWrap(True)
+        note.setObjectName("footnote")
+        layout.addWidget(note)
         layout.addStretch(1)
         return box
+
+    def _apply_cpi_count(self, n):
+        for i, edit in enumerate(self.cpi_edits):
+            edit.setVisible(i < n)
 
     def _bottom_bar(self):
         bar = QHBoxLayout()
@@ -227,13 +248,17 @@ class GGWindow(QMainWindow):
         self.diagram.load(p.get("name", ""))
         self.statusBar().showMessage(f"{p.get('name','')} — generic GG layout")
 
-        # center/settings: buttons editor
-        self._clear_layout(self.buttons_host)
+        # left: single-column button remaps (GG-style ACTIONS list)
+        self._clear_layout(self.left_buttons_host)
         self.buttons_editor = None
         if "buttons_mapping" in settings:
             info = settings["buttons_mapping"]
-            self.buttons_editor = ButtonsEditor(info.get("buttons", {}), str(info.get("default", "")))
-            self.buttons_host.addWidget(self.buttons_editor)
+            self.buttons_editor = ButtonsEditor(
+                info.get("buttons", {}), str(info.get("default", "")), columns=1
+            )
+            self.left_buttons_host.addWidget(self.buttons_editor)
+        else:
+            self.left_buttons_host.addWidget(QLabel("Remapping not supported on this device."))
 
         # center/illumination: every *color / *effect / *brightness / rainbow / default_lighting
         self._clear_layout(self.light_host)
@@ -251,33 +276,27 @@ class GGWindow(QMainWindow):
             self.light_host.addWidget(row)
             self._rows[name] = row
 
-        # left/actions: one row per physical button
-        self._clear_layout(self.actions_box)
-        self.action_combos = {}
-        if "buttons_mapping" in settings:
-            for key in settings["buttons_mapping"].get("buttons", {}).keys():
-                row = QHBoxLayout()
-                row.addWidget(QLabel(key))
-                combo = QComboBox()
-                combo.setEditable(True)
-                from .diagram import COMMON_TARGETS
-                combo.addItems(COMMON_TARGETS)
-                combo.currentTextChanged.connect(self._actions_to_editor)
-                self.action_combos[key.lower()] = combo
-                wrap = QWidget()
-                wrap.setLayout(row)
-                row.addWidget(combo, 1)
-                self.actions_box.addWidget(wrap)
+        # left: device summary (actions live only in center now — no duplication)
+        try:
+            n_buttons = len(settings.get("buttons_mapping", {}).get("buttons", {}))
+        except Exception:
+            n_buttons = 0
+        self.device_info.setText(
+            f"{p.get('name','')}\n{n_buttons} remappable buttons" if n_buttons else p.get("name", "")
+        )
 
         # right: sensitivity + polling
         if "sensitivity" in settings:
             info = settings["sensitivity"]
-            self.cpi_hint.setText(f"{info.get('description','')} Range: {info.get('input_range','')} Default: {info.get('default','')}")
-            from .diagram import parse_buttons_mapping  # noqa (keep import local, no cycle)
-            default_cpis = str(info.get("default", "")).split(",")
+            self.cpi_hint.setText(f"Range: {info.get('input_range','')}  Default: {info.get('default','')}")
+            default_cpis = [s.strip() for s in str(info.get("default", "")).split(",") if s.strip()]
+            n = max(1, min(5, len(default_cpis)))
+            self.cpi_count.blockSignals(True)
+            self.cpi_count.setValue(n)
+            self.cpi_count.blockSignals(False)
             for i, edit in enumerate(self.cpi_edits):
-                edit.setVisible(i < 5)
-                edit.setText(default_cpis[i].strip() if i < len(default_cpis) else "")
+                edit.setVisible(i < n)
+                edit.setText(default_cpis[i] if i < len(default_cpis) else "")
         else:
             self.cpi_hint.setText("Sensitivity not exposed on this device.")
             for e in self.cpi_edits:
@@ -287,21 +306,13 @@ class GGWindow(QMainWindow):
             choices = list(settings["polling_rate"].get("choices", {}).keys())
             for c in choices:
                 self.poll_combo.addItem(str(c), c)
+            default = settings["polling_rate"].get("default")
+            idx = self.poll_combo.findText(str(default))
+            if idx >= 0:
+                self.poll_combo.setCurrentIndex(idx)
             self.poll_combo.setEnabled(True)
-            self.poll_slider.setEnabled(True)
         else:
             self.poll_combo.setEnabled(False)
-            self.poll_slider.setEnabled(False)
-
-    def _actions_to_editor(self):
-        if not getattr(self, "buttons_editor", None):
-            return
-        vals = {k: c.currentText() for k, c in self.action_combos.items()}
-        from .diagram import build_buttons_mapping
-        try:
-            self.buttons_editor.set_value(build_buttons_mapping(vals))
-        except Exception:
-            pass
 
     # ---------- bottom actions ----------
     def _collect_all(self):
