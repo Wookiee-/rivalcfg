@@ -174,7 +174,10 @@ class GGWindow(QMainWindow):
 
     def _apply_cpi_count(self, n):
         for i, edit in enumerate(self.cpi_edits):
-            edit.setVisible(i < n)
+            visible = i < n
+            edit.setVisible(visible)
+            if not visible:
+                edit.clear()  # hidden boxes must not leak stale DPI into SAVE
 
     def _bottom_bar(self):
         bar = QHBoxLayout()
@@ -364,9 +367,9 @@ class GGWindow(QMainWindow):
     # ---------- bottom actions ----------
     def _collect_all(self):
         values = {}
-        # sensitivity from CPI boxes (non-empty boxes only; hidden boxes are skipped by being empty)
+        # sensitivity from visible CPI boxes only (hidden ones are cleared too)
         if self._profile and "sensitivity" in self._profile.get("settings", {}):
-            cpis = [e.text().strip() for e in self.cpi_edits if e.text().strip()]
+            cpis = [e.text().strip() for e in self.cpi_edits if not e.isHidden() and e.text().strip()]
             if cpis:
                 values["sensitivity"] = ", ".join(cpis)
         if self._profile and "polling_rate" in self._profile.get("settings", {}):
