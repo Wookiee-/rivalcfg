@@ -201,6 +201,15 @@ class GGWindow(QMainWindow):
             self.raise_()
             self.activateWindow()
 
+    def show_window(self):
+        # Idempotent show for tray clicks: clicking always opens, never
+        # accidentally closes (a slow double-click must not show+hide).
+        # Hiding is explicit via the tray menu, the close button, or REVERT.
+        if not self.isVisible():
+            self.setVisible(True)
+        self.raise_()
+        self.activateWindow()
+
     def closeEvent(self, event):
         # Close-to-tray when a tray icon owns us; real quit via tray menu.
         if self._tray_mode and self._tray is not None and self._tray.isVisible():
@@ -317,6 +326,40 @@ class GGWindow(QMainWindow):
             self.poll_combo.setEnabled(True)
         else:
             self.poll_combo.setEnabled(False)
+
+        # Seed the form from your last SAVE so reopening shows your values,
+        # not factory defaults. (Writes were fine — only the display reset.)
+        try:
+            saved = persistence.load(self._vid, self._pid) or {}
+            vals = saved.get("values", {})
+        except Exception:
+            vals = {}
+        if vals:
+            if "sensitivity" in vals and "sensitivity" in settings:
+                parts = [s.strip() for s in str(vals["sensitivity"]).split(",") if s.strip()]
+                if parts:
+                    n = max(1, min(5, len(parts)))
+                    self.cpi_count.blockSignals(True)
+                    self.cpi_count.setValue(n)
+                    self.cpi_count.blockSignals(False)
+                    for i, edit in enumerate(self.cpi_edits):
+                        edit.setVisible(i < n)
+                        edit.setText(parts[i] if i < len(parts) else "")
+            if "polling_rate" in vals and self.poll_combo.count():
+                idx = self.poll_combo.findText(str(vals["polling_rate"]))
+                if idx >= 0:
+                    self.poll_combo.setCurrentIndex(idx)
+            for name, row in self._rows.items():
+                if name in vals:
+                    try:
+                        row.set_value(vals[name])
+                    except Exception:
+                        pass
+            if "buttons_mapping" in vals and getattr(self, "buttons_editor", None):
+                try:
+                    self.buttons_editor.set_value(vals["buttons_mapping"])
+                except Exception:
+                    pass
 
     # ---------- bottom actions ----------
     def _collect_all(self):

@@ -80,21 +80,11 @@ def setup_tray(app, window, on_apply_last=None):
     menu.addAction(quit_act)
 
     tray.setContextMenu(menu)
-    # Debounced toggle: a double-click arrives as two Triggers ~100ms apart,
-    # which without a guard would show-then-instantly-hide (looks broken).
-    import time
-
-    last_toggle = [0.0]
-
-    def _guarded_toggle(reason=None):
-        now = time.monotonic()
-        if now - last_toggle[0] < 0.4:
-            return
-        last_toggle[0] = now
-        window.toggle_visible()
-
+    # Clicks always SHOW (never toggle): toggle-on-click breaks on SNI/Plasma
+    # where double-clicks arrive as two Triggers (slow ones show+hide, so it
+    # looks like nothing happens). Hiding stays explicit: tray menu, X button.
     tray.activated.connect(
-        lambda reason: _guarded_toggle() if reason in (2, 3, 4) else None
+        lambda reason: window.show_window() if reason in (2, 3, 4) else None
     )
     tray.show()
     return tray

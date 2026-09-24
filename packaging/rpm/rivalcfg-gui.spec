@@ -1,6 +1,6 @@
 Name:           rivalcfg-gui
 Version:        4.17.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Unofficial GG-style GUI for SteelSeries mice (rivalcfg)
 License:        WTFPL
 URL:            https://github.com/Wookiee-/rivalcfg
@@ -80,6 +80,8 @@ gtk-update-icon-cache -f -t /usr/share/icons/hicolor >/dev/null 2>&1 || :
 %{_datadir}/icons/hicolor/scalable/apps/rivalcfg-gui.svg
 
 %changelog
+* Thu Sep 24 2026 rivalcfg-gui 4.17.0-5
+- Seed form from last SAVE on open; tray clicks always show (double-click fix)
 * Thu Sep 24 2026 rivalcfg-gui 4.17.0-4
 - Bundle mouse diagram SVGs (installed pkg had none); debounce tray toggle so double-click opens
 * Thu Sep 24 2026 rivalcfg-gui 4.17.0-3
