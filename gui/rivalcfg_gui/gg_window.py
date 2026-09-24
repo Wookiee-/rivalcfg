@@ -26,7 +26,6 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QMessageBox,
     QPushButton,
-    QSlider,
     QTabWidget,
     QVBoxLayout,
     QWidget,
@@ -116,10 +115,6 @@ class GGWindow(QMainWindow):
         scroll.setWidget(host_wrap)
         layout.addWidget(scroll, 1)
         self.buttons_editor = None
-        macro = QPushButton("Macro Editor — N/A")
-        macro.setEnabled(False)
-        macro.setToolTip("Timed macros need new reverse-engineering + a background daemon. Not exposed by rivalcfg.")
-        layout.addWidget(macro)
         return box
 
     def _center_pane(self):
@@ -136,10 +131,6 @@ class GGWindow(QMainWindow):
         s_layout = QVBoxLayout(self.tab_settings)
         self.diagram = MouseDiagram()
         s_layout.addWidget(self.diagram, 1)
-        hint = QLabel("Diagram is a reference — remap on the left. ScrollUp/Down included where supported.")
-        hint.setWordWrap(True)
-        hint.setObjectName("footnote")
-        s_layout.addWidget(hint)
 
         # illumination tab: rebuilt per-device from *color/*effect/*brightness settings
         l_layout = QVBoxLayout(self.tab_light)
@@ -178,12 +169,6 @@ class GGWindow(QMainWindow):
         layout.addWidget(QLabel("Polling Rate (Hz)"))
         self.poll_combo = QComboBox()
         layout.addWidget(self.poll_combo)
-
-        # GG shows these; rivalcfg does not expose them -> single small footnote
-        note = QLabel("Acceleration / angle snapping: not exposed by rivalcfg on any device.")
-        note.setWordWrap(True)
-        note.setObjectName("footnote")
-        layout.addWidget(note)
         layout.addStretch(1)
         return box
 
@@ -265,7 +250,7 @@ class GGWindow(QMainWindow):
         p = self._profile
         settings = p.get("settings", {})
         self.diagram.load(p.get("name", ""))
-        self.statusBar().showMessage(f"{p.get('name','')} — generic GG layout")
+        self.statusBar().showMessage(p.get("name", ""))
 
         # left: single-column button remaps (GG-style ACTIONS list)
         self._clear_layout(self.left_buttons_host)
