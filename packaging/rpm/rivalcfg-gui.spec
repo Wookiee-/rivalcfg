@@ -57,12 +57,16 @@ install -D -m0644 packaging/icons/rivalcfg-gui.svg \
 %post
 # allow regular users to open the mice (needs root — we are root here)
 python3 -m rivalcfg --update-udev >/dev/null 2>&1 || :
+update-desktop-database /usr/share/applications >/dev/null 2>&1 || :
+gtk-update-icon-cache -f -t /usr/share/icons/hicolor >/dev/null 2>&1 || :
 %systemd_user_post rivalcfg-gui-apply.service
 
 %preun
 %systemd_user_preun rivalcfg-gui-apply.service
 
 %postun
+update-desktop-database /usr/share/applications >/dev/null 2>&1 || :
+gtk-update-icon-cache -f -t /usr/share/icons/hicolor >/dev/null 2>&1 || :
 %systemd_user_postun_with_restart rivalcfg-gui-apply.service
 
 %files
