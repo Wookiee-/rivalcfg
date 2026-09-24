@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Rivalcfg GUI (tray)
+Comment=Re-apply mouse settings on login and sit in the system tray
+Exec=rivalcfg-gui --tray
+Icon=rivalcfg-gui
+X-GNOME-Autostart-enabled=true
+X-KDE-autostart-after=panel
+NoDisplay=true

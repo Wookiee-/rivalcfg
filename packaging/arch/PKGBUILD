@@ -1,0 +1,44 @@
+# Maintainer: rivalcfg-gui contributors
+pkgname=rivalcfg-gui
+pkgver=4.17.0
+pkgrel=1
+pkgdesc="Unofficial GG-style GUI for SteelSeries mice (rivalcfg)"
+arch=('any')
+url="https://github.com/Wookiee-/rivalcfg"
+license=('WTFPL')
+depends=('python' 'python-hidapi' 'python-pyside6' 'hicolor-icon-theme' 'systemd')
+source=("$pkgname-$pkgver.tar.gz")
+sha256sums=('SKIP')  # set when building from a release tarball
+
+package() {
+  local pylib
+  pylib=$(python -c "import sysconfig; print(sysconfig.get_path('purelib'))")
+
+  install -d "$pkgdir/$pylib/rivalcfg"
+  cp -r "$srcdir/$pkgname-$pkgver/rivalcfg/"* "$pkgdir/$pylib/rivalcfg/"
+  python -m compileall -q "$pkgdir/$pylib/rivalcfg" || true
+
+  install -d "$pkgdir/usr/share/rivalcfg-gui"
+  cp -r "$srcdir/$pkgname-$pkgver/gui/rivalcfg_gui" "$pkgdir/usr/share/rivalcfg-gui/"
+  cp "$srcdir/$pkgname-$pkgver/gui/run_gui.py" "$pkgdir/usr/share/rivalcfg-gui/"
+  python -m compileall -q "$pkgdir/usr/share/rivalcfg-gui" || true
+
+  install -D -m0755 "$srcdir/$pkgname-$pkgver/packaging/rivalcfg-gui" \
+    "$pkgdir/usr/bin/rivalcfg-gui"
+
+  install -D -m0644 "$srcdir/$pkgname-$pkgver/packaging/rivalcfg-gui.desktop" \
+    "$pkgdir/usr/share/applications/rivalcfg-gui.desktop"
+  install -D -m0644 "$srcdir/$pkgname-$pkgver/packaging/rivalcfg-gui-autostart.desktop" \
+    "$pkgdir/etc/xdg/autostart/rivalcfg-gui.desktop"
+  install -D -m0644 "$srcdir/$pkgname-$pkgver/packaging/rivalcfg-gui-apply.service" \
+    "$pkgdir/usr/lib/systemd/user/rivalcfg-gui-apply.service"
+  sed -i 's|^ExecStart=.*|ExecStart=/usr/bin/rivalcfg-gui --apply-last|' \
+    "$pkgdir/usr/lib/systemd/user/rivalcfg-gui-apply.service"
+
+  for s in 16 22 24 32 48 64 128 256; do
+    install -D -m0644 "$srcdir/$pkgname-$pkgver/packaging/icons/hicolor/${s}x${s}/apps/rivalcfg-gui.png" \
+      "$pkgdir/usr/share/icons/hicolor/${s}x${s}/apps/rivalcfg-gui.png"
+  done
+  install -D -m0644 "$srcdir/$pkgname-$pkgver/packaging/icons/rivalcfg-gui.svg" \
+    "$pkgdir/usr/share/icons/hicolor/scalable/apps/rivalcfg-gui.svg"
+}

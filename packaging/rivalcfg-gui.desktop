@@ -2,9 +2,8 @@
 Type=Application
 Name=Rivalcfg GUI
 Comment=Configure SteelSeries mice (unofficial GG-style GUI)
-Exec=python3 -m rivalcfg_gui.gg_window
-# Exec alt when installed via pipx/checkout: /usr/local/bin/rivalcfg-gui
-Icon=input-mouse
+Exec=rivalcfg-gui
+Icon=rivalcfg-gui
 Categories=Settings;HardwareSettings;
 Keywords=steelseries;rival;mouse;dpi;rgb;
 StartupNotify=true

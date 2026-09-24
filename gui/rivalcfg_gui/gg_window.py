@@ -37,13 +37,17 @@ from . import persistence
 from . import profiles
 from .app import SettingRow
 from .widgets import MouseDiagram, ButtonsEditor
+from .tray import app_icon, setup_tray
 
 
 class GGWindow(QMainWindow):
-    def __init__(self, force_dark=False):
+    def __init__(self, force_dark=False, tray_mode=False):
         super().__init__()
         self.setWindowTitle("rivalcfg GUI")
+        self.setWindowIcon(app_icon())
         self.resize(1180, 700)
+        self._tray_mode = tray_mode
+        self._tray = None
         self._profile = None
         self._vid = self._pid = None
         self._rows = {}  # non-button settings
@@ -205,6 +209,20 @@ class GGWindow(QMainWindow):
         for w in (new_btn, configs_btn, self.live_check, self.persist_check, revert_btn, save_btn):
             bar.addWidget(w)
         return bar
+
+    def toggle_visible(self):
+        self.setVisible(not self.isVisible())
+        if self.isVisible():
+            self.raise_()
+            self.activateWindow()
+
+    def closeEvent(self, event):
+        # Close-to-tray when a tray icon owns us; real quit via tray menu.
+        if self._tray_mode and self._tray is not None and self._tray.isVisible():
+            event.ignore()
+            self.hide()
+        else:
+            super().closeEvent(event)
 
     # ---------- device handling ----------
     def refresh_devices(self):
@@ -402,7 +420,26 @@ def main(argv=None):
     # Native system theme by default (works on GNOME/XFCE/KDE/Win/macOS).
     # Opt into the GG dark look with --dark or RIVALCFG_GUI_THEME=dark.
     force_dark = ("--dark" in args) or (os.environ.get("RIVALCFG_GUI_THEME") == "dark")
+    tray_mode = "--tray" in args
     app = QApplication(args)
-    win = GGWindow(force_dark=force_dark)
-    win.show()
+    app.setApplicationName("rivalcfg GUI")
+    app.setQuitOnLastWindowClosed(not tray_mode)
+    win = GGWindow(force_dark=force_dark, tray_mode=tray_mode)
+    if tray_mode:
+        from .apply_last import main as apply_last_main
+
+        def _reapply():
+            win.statusBar().showMessage("Re-applying saved settings…")
+            rc = apply_last_main()
+            win.statusBar().showMessage(
+                "Settings re-applied." if rc == 0 else "Re-apply had errors — see terminal.", 8000
+            )
+
+        win._tray = setup_tray(app, win, on_apply_last=_reapply)
+        if win._tray is None:
+            win._tray_mode = False  # no tray here (e.g. plain GNOME): normal window life
+            win.show()
+        # else: start hidden in the tray
+    else:
+        win.show()
     return app.exec()

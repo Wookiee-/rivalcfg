@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+"""rivalcfg-gui launcher (installed as /usr/bin/rivalcfg-gui)."""
+import os
+import sys
+
+# Installed layout: /usr/share/rivalcfg-gui/{run_gui.py,rivalcfg_gui/}
+SHARE = "/usr/share/rivalcfg-gui"
+if os.path.isdir(SHARE):
+    sys.path.insert(0, SHARE)
+    # rivalcfg library ships with the distro package as a dependency.
+
+if "--apply-last" in sys.argv:
+    from rivalcfg_gui.apply_last import main as apply_main
+
+    raise SystemExit(apply_main())
+
+if "--classic" in sys.argv:
+    from rivalcfg_gui.app import main
+else:
+    from rivalcfg_gui.gg_window import main
+
+if __name__ == "__main__":
+    raise SystemExit(main())
