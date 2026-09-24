@@ -409,6 +409,16 @@ def main(argv=None):
     app = QApplication(args)
     app.setApplicationName("rivalcfg GUI")
     app.setQuitOnLastWindowClosed(not tray_mode)
+    if tray_mode:
+        # Autostart path: restore last-saved settings first so a reboot
+        # leaves the mouse exactly as the GUI last saved it.
+        try:
+            from .apply_last import main as apply_last_main
+
+            rc = apply_last_main()
+            print(f"rivalcfg-gui: startup re-apply {'ok' if rc == 0 else 'had errors'}", flush=True)
+        except Exception as e:
+            print(f"rivalcfg-gui: startup re-apply skipped ({e})", flush=True)
     win = GGWindow(force_dark=force_dark, tray_mode=tray_mode)
     if tray_mode:
         from .apply_last import main as apply_last_main
