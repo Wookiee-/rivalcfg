@@ -1,6 +1,6 @@
 Name:           rivalcfg-gui
 Version:        4.17.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Unofficial GG-style GUI for SteelSeries mice (rivalcfg)
 License:        WTFPL
 URL:            https://github.com/Wookiee-/rivalcfg
@@ -80,6 +80,8 @@ gtk-update-icon-cache -f -t /usr/share/icons/hicolor >/dev/null 2>&1 || :
 %{_datadir}/icons/hicolor/scalable/apps/rivalcfg-gui.svg
 
 %changelog
+* Thu Sep 24 2026 rivalcfg-gui 4.17.0-3
+- Tray autostart re-applies saved settings on login
 * Thu Sep 24 2026 rivalcfg-gui 4.17.0-2
 - GUI cleanup: drop unsupported-feature placeholders; desktop/icon cache scriptlets
 * Thu Sep 24 2026 rivalcfg-gui 4.17.0-1
