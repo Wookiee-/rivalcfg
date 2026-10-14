@@ -7,8 +7,8 @@ dynamically from the plugged mouse's profile, so all devices work.
 
 ```bash
 pip install -e . "PySide6>=6.6" hidapi
-python gui/run_gui.py            # GG-style layout, native system theme
-python gui/run_gui.py --dark     # forced GG dark look (or RIVALCFG_GUI_THEME=dark)
+python gui/run_gui.py            # GG-style layout with the polished app theme
+python gui/run_gui.py --dark     # compatibility flag for the same dark theme
 python gui/run_gui.py --tray     # start minimized to the system tray
 python gui/run_gui.py --classic  # old single-form layout
 QT_QPA_PLATFORM=offscreen python gui/run_gui.py  # smoke test, no display
@@ -23,7 +23,7 @@ sudo rivalcfg --update-udev
 ## Layout
 
 * `gui/rivalcfg_gui/gg_window.py` — GG-style 3-pane window (configs+buttons |
-  diagram | performance), native theme by default, `--dark` opt-in
+  diagram | performance) with the polished flat app theme
 * `gui/rivalcfg_gui/tray.py` — `QSystemTrayIcon` (SNI D-Bus, all DEs with a
   tray host) + `--tray` start-hidden + close-to-tray
 * `gui/rivalcfg_gui/backend.py` — wrapper over `rivalcfg.devices` + `rivalcfg.mouse`

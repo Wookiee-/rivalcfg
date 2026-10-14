@@ -124,7 +124,7 @@ class MouseDiagram(QWidget):
 class ButtonsEditor(QWidget):
     """Per-button dropdowns (Piper-style) synced with the raw buttons() string."""
 
-    def __init__(self, buttons_dict, default_text="", parent=None, columns=2):
+    def __init__(self, buttons_dict, default_text="", parent=None, columns=2, show_advanced=True):
         super().__init__(parent)
         self._buttons_dict = buttons_dict  # {"Button1": {...}, ...} from profile
         root = QVBoxLayout(self)
@@ -134,7 +134,7 @@ class ButtonsEditor(QWidget):
         from PySide6.QtWidgets import QGridLayout
         grid = QGridLayout()
         grid.setHorizontalSpacing(12)
-        grid.setVerticalSpacing(2)
+        grid.setVerticalSpacing(7)
         self._combos = {}
         # Compact grid; left pane uses columns=1, center used columns=2
         for i, key in enumerate(buttons_dict.keys()):
@@ -158,7 +158,6 @@ class ButtonsEditor(QWidget):
         self._adv_toggle.setCheckable(True)
         self._adv_toggle.setChecked(False)
         self._adv_toggle.toggled.connect(self._toggle_advanced)
-        root.addWidget(self._adv_toggle)
 
         self._adv_wrap = QWidget()
         adv_layout = QVBoxLayout(self._adv_wrap)
@@ -173,9 +172,20 @@ class ButtonsEditor(QWidget):
         self._text.setPlaceholderText("buttons(button1=button1; ...; layout=qwerty)")
         adv_layout.addWidget(self._text)
         self._adv_wrap.hide()
-        root.addWidget(self._adv_wrap)
+        self._advanced_panel = QWidget()
+        advanced_panel_layout = QVBoxLayout(self._advanced_panel)
+        advanced_panel_layout.setContentsMargins(0, 0, 0, 0)
+        advanced_panel_layout.addWidget(self._adv_toggle)
+        advanced_panel_layout.addWidget(self._adv_wrap)
+        if show_advanced:
+            root.addWidget(self._advanced_panel)
         self._syncing = False
         self.set_value(default_text)
+
+    @property
+    def advanced_panel(self):
+        """The advanced editor controls, optionally hosted outside a scroll area."""
+        return self._advanced_panel
 
     def _toggle_advanced(self, checked):
         self._adv_wrap.setVisible(checked)

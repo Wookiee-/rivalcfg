@@ -26,9 +26,11 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QMessageBox,
     QPushButton,
+    QStyle,
     QTabWidget,
     QVBoxLayout,
     QWidget,
+    QFrame,
 )
 
 from . import backend
@@ -45,30 +47,45 @@ class GGWindow(QMainWindow):
         self.setWindowTitle("rivalcfg GUI")
         self.setWindowIcon(app_icon())
         self.resize(1180, 700)
+        self.setMinimumSize(980, 620)
         self._tray_mode = tray_mode
         self._tray = None
         self._profile = None
         self._vid = self._pid = None
         self._rows = {}  # non-button settings
-        if force_dark:
-            self._load_qss()
+        # Keep the GG view visually consistent across desktop environments.
+        # ``force_dark`` is retained for CLI/API compatibility; the polished
+        # app theme is now the default presentation for this window.
+        self._load_qss()
 
         central = QWidget()
+        central.setObjectName("appRoot")
         self.setCentralWidget(central)
         root = QVBoxLayout(central)
+        root.setContentsMargins(20, 18, 20, 14)
+        root.setSpacing(14)
 
         # top device bar (not in GG shot, needed for generic multi-mouse)
         top = QHBoxLayout()
+        top.setObjectName("deviceBar")
+        top.setSpacing(10)
         self.device_combo = QComboBox()
         self.device_combo.setMinimumWidth(320)
+        self.device_combo.setMinimumHeight(38)
         refresh = QPushButton("Refresh")
+        refresh.setObjectName("secondaryButton")
+        refresh.setMinimumHeight(38)
+        refresh.setIcon(self.style().standardIcon(QStyle.SP_BrowserReload))
         refresh.clicked.connect(self.refresh_devices)
-        top.addWidget(QLabel("Device:"))
+        device_label = QLabel("DEVICE")
+        device_label.setObjectName("eyebrow")
+        top.addWidget(device_label)
         top.addWidget(self.device_combo, 1)
         top.addWidget(refresh)
         root.addLayout(top)
 
         cols = QHBoxLayout()
+        cols.setSpacing(14)
         root.addLayout(cols, 1)
         cols.addWidget(self._left_pane(), 1)
         cols.addWidget(self._center_pane(), 2)
@@ -92,11 +109,12 @@ class GGWindow(QMainWindow):
 
     # ---------- panes ----------
     def _left_pane(self):
-        from PySide6.QtWidgets import QScrollArea, QFrame
         box = QGroupBox("CONFIGURATIONS / BUTTONS")
+        box.setObjectName("card")
         box.setMinimumWidth(300)
         box.setMaximumWidth(340)
         layout = QVBoxLayout(box)
+        layout.setSpacing(8)
         self.config_list = QComboBox()
         self.config_list.setToolTip("Saved JSON profiles (~/.config/rivalcfg-gui/profiles/)")
         layout.addWidget(QLabel("Configuration:"))
@@ -105,20 +123,24 @@ class GGWindow(QMainWindow):
         self.device_info.setWordWrap(True)
         layout.addWidget(self.device_info)
         layout.addWidget(QLabel("Button remapping:"))
-        # Scrollable single-column remaps (like GG left ACTIONS list)
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QFrame.NoFrame)
+        # Compact single-column remaps (the supported profiles fit without a
+        # scrollbar; the advanced editor remains in the fixed footer below).
         host_wrap = QWidget()
         self.left_buttons_host = QVBoxLayout(host_wrap)
         self.left_buttons_host.setContentsMargins(0, 0, 0, 0)
-        scroll.setWidget(host_wrap)
-        layout.addWidget(scroll, 1)
+        self.left_buttons_host.setSpacing(8)
+        layout.addWidget(host_wrap, 1)
+        self.left_advanced_host = QWidget()
+        self.left_advanced_layout = QVBoxLayout(self.left_advanced_host)
+        self.left_advanced_layout.setContentsMargins(0, 4, 0, 0)
+        self.left_advanced_host.hide()
+        layout.addWidget(self.left_advanced_host)
         self.buttons_editor = None
         return box
 
     def _center_pane(self):
         box = QGroupBox("Mouse")
+        box.setObjectName("card")
         layout = QVBoxLayout(box)
         self.tabs = QTabWidget()
         self.tab_settings = QWidget()
@@ -141,10 +163,14 @@ class GGWindow(QMainWindow):
     def _right_pane(self):
         from PySide6.QtWidgets import QSpinBox
         box = QGroupBox("Performance")
+        box.setObjectName("card")
         box.setMaximumWidth(300)
         layout = QVBoxLayout(box)
+        layout.setSpacing(10)
         cpi_head = QHBoxLayout()
-        cpi_head.addWidget(QLabel("Sensitivity Levels"))
+        dpi_title = QLabel("DPI STAGES")
+        dpi_title.setObjectName("sectionHeader")
+        cpi_head.addWidget(dpi_title)
         self.cpi_count = QSpinBox()
         self.cpi_count.setMinimum(1)
         self.cpi_count.setMaximum(5)
@@ -154,43 +180,67 @@ class GGWindow(QMainWindow):
         cpi_head.addWidget(self.cpi_count)
         layout.addLayout(cpi_head)
         self.cpi_edits = []
+        self.cpi_cards = []
         cpi_box = QVBoxLayout()
-        cpi_box.setSpacing(4)
-        for _ in range(5):  # up to 5 presets; shown per-device count
+        cpi_box.setSpacing(6)
+        for i in range(5):  # up to 5 presets; shown per-device count
+            card = QFrame()
+            card.setObjectName("metricCard")
+            card_layout = QHBoxLayout(card)
+            card_layout.setContentsMargins(10, 6, 8, 6)
+            level = QLabel(f"LEVEL {i + 1}")
+            level.setObjectName("metricLabel")
             e = QLineEdit()
             e.setPlaceholderText("DPI")
+            e.setObjectName("metricValue")
+            e.setMinimumHeight(34)
+            card_layout.addWidget(level)
+            card_layout.addWidget(e, 1)
+            cpi_box.addWidget(card)
             self.cpi_edits.append(e)
-            cpi_box.addWidget(e)
+            self.cpi_cards.append(card)
         layout.addLayout(cpi_box)
         self.cpi_hint = QLabel("")
+        self.cpi_hint.setObjectName("valueHint")
         self.cpi_hint.setWordWrap(True)
         layout.addWidget(self.cpi_hint)
 
-        layout.addWidget(QLabel("Polling Rate (Hz)"))
+        polling_title = QLabel("POLLING RATE")
+        polling_title.setObjectName("sectionHeader")
+        layout.addWidget(polling_title)
         self.poll_combo = QComboBox()
+        self.poll_combo.setMinimumHeight(38)
         layout.addWidget(self.poll_combo)
         layout.addStretch(1)
         return box
 
     def _apply_cpi_count(self, n):
-        for i, edit in enumerate(self.cpi_edits):
+        for i, (edit, card) in enumerate(zip(self.cpi_edits, self.cpi_cards)):
             visible = i < n
-            edit.setVisible(visible)
+            card.setVisible(visible)
             if not visible:
                 edit.clear()  # hidden boxes must not leak stale DPI into SAVE
 
     def _bottom_bar(self):
         bar = QHBoxLayout()
+        bar.setObjectName("bottomBar")
+        bar.setSpacing(8)
         new_btn = QPushButton("+ NEW")
+        new_btn.setObjectName("secondaryButton")
         new_btn.clicked.connect(self.on_new_profile)
         configs_btn = QPushButton("CONFIGS")
+        configs_btn.setObjectName("secondaryButton")
         configs_btn.clicked.connect(self.on_load_profile)
         self.live_check = QCheckBox("LIVE PREVIEW ON")
         self.live_check.setChecked(True)
         self.live_check.setToolTip("Apply immediately on SAVE. Off = record only.")
         revert_btn = QPushButton("REVERT")
+        revert_btn.setObjectName("secondaryButton")
+        revert_btn.setIcon(self.style().standardIcon(QStyle.SP_ArrowBack))
         revert_btn.clicked.connect(self.on_revert)
         save_btn = QPushButton("SAVE")
+        save_btn.setObjectName("primaryButton")
+        save_btn.setIcon(self.style().standardIcon(QStyle.SP_DialogSaveButton))
         save_btn.clicked.connect(self.on_save)
         self.persist_check = QCheckBox("Save to onboard")
         self.persist_check.setChecked(True)
@@ -266,15 +316,23 @@ class GGWindow(QMainWindow):
 
         # left: single-column button remaps (GG-style ACTIONS list)
         self._clear_layout(self.left_buttons_host)
+        self._clear_layout(self.left_advanced_layout)
         self.buttons_editor = None
         if "buttons_mapping" in settings:
             info = settings["buttons_mapping"]
             self.buttons_editor = ButtonsEditor(
-                info.get("buttons", {}), str(info.get("default", "")), columns=1
+                info.get("buttons", {}),
+                str(info.get("default", "")),
+                columns=1,
+                show_advanced=False,
             )
             self.left_buttons_host.addWidget(self.buttons_editor)
+            self.left_advanced_layout.addWidget(self.buttons_editor.advanced_panel)
         else:
             self.left_buttons_host.addWidget(QLabel("Remapping not supported on this device."))
+            self.left_advanced_host.hide()
+        if "buttons_mapping" in settings:
+            self.left_advanced_host.show()
 
         # center/illumination: every *color / *effect / *brightness / rainbow / default_lighting
         self._clear_layout(self.light_host)
@@ -310,13 +368,13 @@ class GGWindow(QMainWindow):
             self.cpi_count.blockSignals(True)
             self.cpi_count.setValue(n)
             self.cpi_count.blockSignals(False)
-            for i, edit in enumerate(self.cpi_edits):
-                edit.setVisible(i < n)
-                edit.setText(default_cpis[i] if i < len(default_cpis) else "")
+            for i, card in enumerate(self.cpi_cards):
+                card.setVisible(i < n)
+                self.cpi_edits[i].setText(default_cpis[i] if i < len(default_cpis) else "")
         else:
             self.cpi_hint.setText("Sensitivity not exposed on this device.")
-            for e in self.cpi_edits:
-                e.setVisible(False)
+            for card in self.cpi_cards:
+                card.setVisible(False)
         self.poll_combo.clear()
         if "polling_rate" in settings:
             choices = list(settings["polling_rate"].get("choices", {}).keys())
@@ -345,9 +403,9 @@ class GGWindow(QMainWindow):
                     self.cpi_count.blockSignals(True)
                     self.cpi_count.setValue(n)
                     self.cpi_count.blockSignals(False)
-                    for i, edit in enumerate(self.cpi_edits):
-                        edit.setVisible(i < n)
-                        edit.setText(parts[i] if i < len(parts) else "")
+                    for i, card in enumerate(self.cpi_cards):
+                        card.setVisible(i < n)
+                        self.cpi_edits[i].setText(parts[i] if i < len(parts) else "")
             if "polling_rate" in vals and self.poll_combo.count():
                 idx = self.poll_combo.findText(str(vals["polling_rate"]))
                 if idx >= 0:
@@ -369,7 +427,11 @@ class GGWindow(QMainWindow):
         values = {}
         # sensitivity from visible CPI boxes only (hidden ones are cleared too)
         if self._profile and "sensitivity" in self._profile.get("settings", {}):
-            cpis = [e.text().strip() for e in self.cpi_edits if not e.isHidden() and e.text().strip()]
+            cpis = [
+                edit.text().strip()
+                for edit, card in zip(self.cpi_edits, self.cpi_cards)
+                if card.isVisible() and edit.text().strip()
+            ]
             if cpis:
                 values["sensitivity"] = ", ".join(cpis)
         if self._profile and "polling_rate" in self._profile.get("settings", {}):

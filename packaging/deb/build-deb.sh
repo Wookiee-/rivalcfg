@@ -5,6 +5,7 @@
 set -euo pipefail
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 VER="${VER:-4.17.0}"
+OUT_DIR="${OUT_DIR:-$REPO}"
 WORK="$(mktemp -d)"
 PKG="$WORK/rivalcfg-gui_${VER}_all"
 trap 'rm -rf "$WORK"' EXIT
@@ -68,5 +69,6 @@ cp "$REPO/packaging/icons/rivalcfg-gui.svg" \
 find "$PKG/usr/lib/python3/dist-packages/rivalcfg" \
      "$PKG/usr/share/rivalcfg-gui" -name __pycache__ -type d -prune -exec rm -rf {} + 2>/dev/null || true
 
-dpkg-deb -b "$PKG" "$REPO/rivalcfg-gui_${VER}_all.deb"
-echo "Built: $REPO/rivalcfg-gui_${VER}_all.deb"
+mkdir -p "$OUT_DIR"
+dpkg-deb -b "$PKG" "$OUT_DIR/rivalcfg-gui_${VER}_all.deb"
+echo "Built: $OUT_DIR/rivalcfg-gui_${VER}_all.deb"

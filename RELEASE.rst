@@ -35,6 +35,16 @@ Publish source dist and wheels on PyPI.
 * Add changelog
 * Add standalone builds (Linux, macOS and Windows)
 
+The Linux GUI release bundle can be built from the checkout with::
+
+    ./scripts/build-packages.sh
+
+This always creates the versioned source archive and then builds the Fedora
+RPM, Arch package, and Debian package into ``dist/packages/``. Run it on the
+corresponding distribution (or use ``--rpm``, ``--arch``, or ``--deb`` to
+build one target). The RPM and Arch recipes must have the same version as
+``pyproject.toml``; the runner checks this before building.
+
 
 4. Update the website
 ---------------------
