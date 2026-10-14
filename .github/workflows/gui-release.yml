@@ -79,7 +79,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${GITHUB_REF_NAME}" dist/packages/* \
+          mapfile -t release_files < <(find dist/packages -type f -print | sort)
+          gh release create "${GITHUB_REF_NAME}" "${release_files[@]}" \
             --target "${GITHUB_SHA}" \
             --title "rivalcfg GUI ${GITHUB_REF_NAME#v}" \
             --generate-notes
