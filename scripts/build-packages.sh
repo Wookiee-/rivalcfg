@@ -7,6 +7,7 @@
 # Run from any directory inside the checkout:
 #   ./scripts/build-packages.sh
 #   ./scripts/build-packages.sh --deb
+#   ./scripts/build-packages.sh --publish
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -22,6 +23,7 @@ Build the complete release by default. Targets may be selected with:
   --rpm       Fedora/RHEL RPM (requires rpmbuild)
   --arch      Arch Linux package (requires makepkg)
   --deb       Debian/Ubuntu package (requires dpkg-deb)
+  --publish   Upload the complete bundle to a GitHub release (requires gh)
   --help      Show this help
 
 The source archive is always built and included in dist/packages/.
@@ -32,12 +34,14 @@ EOF
 want_rpm=0
 want_arch=0
 want_deb=0
+publish=0
 selected=0
 for arg in "$@"; do
   case "$arg" in
     --rpm) want_rpm=1; selected=1 ;;
     --arch) want_arch=1; selected=1 ;;
     --deb) want_deb=1; selected=1 ;;
+    --publish) publish=1 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown option: $arg" >&2; usage >&2; exit 2 ;;
   esac
@@ -121,3 +125,32 @@ fi
 echo
 echo "Release files in $DIST_DIR:"
 find "$DIST_DIR" -maxdepth 1 -type f -printf '  %f\n' | sort
+
+if [[ "$publish" == 1 ]]; then
+  command -v gh >/dev/null || { echo "Publishing requested but gh is unavailable" >&2; exit 1; }
+  gh auth status >/dev/null 2>&1 || {
+    echo "Publishing requested but gh is not authenticated. Run: gh auth refresh -h github.com" >&2
+    exit 1
+  }
+
+  mapfile -t release_files < <(find "$DIST_DIR" -maxdepth 1 -type f \( \
+    -name 'rivalcfg-gui-*.tar.gz' -o -name 'rivalcfg-gui-*.rpm' -o \
+    -name 'rivalcfg-gui-*.pkg.tar.*' -o -name 'rivalcfg-gui_*.deb' \
+  \) -print | sort)
+  if [[ "${#release_files[@]}" -lt 4 ]]; then
+    echo "Publishing requires the source archive and all three distro packages." >&2
+    exit 1
+  fi
+
+  tag="v${VERSION}"
+  title="rivalcfg GUI ${VERSION}"
+  echo "Publishing GitHub release $tag"
+  if gh release view "$tag" >/dev/null 2>&1; then
+    gh release upload "$tag" --clobber "${release_files[@]}"
+  else
+    gh release create "$tag" "${release_files[@]}" \
+      --target "$(git rev-parse HEAD)" \
+      --title "$title" \
+      --generate-notes
+  fi
+fi

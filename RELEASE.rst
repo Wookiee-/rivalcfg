@@ -39,6 +39,11 @@ The Linux GUI release bundle can be built from the checkout with::
 
     ./scripts/build-packages.sh
 
+After reviewing the files locally, ``--publish`` can create or update the
+matching GitHub release (after ``gh auth refresh -h github.com``)::
+
+    ./scripts/build-packages.sh --publish
+
 This always creates the versioned source archive and then builds the Fedora
 RPM, Arch package, and Debian package into ``dist/packages/``. Run it on the
 corresponding distribution (or use ``--rpm``, ``--arch``, or ``--deb`` to
