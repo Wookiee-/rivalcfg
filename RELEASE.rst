@@ -44,6 +44,12 @@ matching GitHub release (after ``gh auth refresh -h github.com``)::
 
     ./scripts/build-packages.sh --publish
 
+When the three package types are built on separate distro machines, copy
+their files into the same ``dist/packages/`` directory and publish without
+rebuilding with::
+
+    ./scripts/build-packages.sh --publish-only
+
 This always creates the versioned source archive and then builds the Fedora
 RPM, Arch package, and Debian package into ``dist/packages/``. Run it on the
 corresponding distribution (or use ``--rpm``, ``--arch``, or ``--deb`` to

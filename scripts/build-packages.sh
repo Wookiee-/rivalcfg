@@ -24,6 +24,7 @@ Build the complete release by default. Targets may be selected with:
   --arch      Arch Linux package (requires makepkg)
   --deb       Debian/Ubuntu package (requires dpkg-deb)
   --publish   Upload the complete bundle to a GitHub release (requires gh)
+  --publish-only  Upload existing dist/packages artifacts without rebuilding
   --help      Show this help
 
 The source archive is always built and included in dist/packages/.
@@ -35,6 +36,7 @@ want_rpm=0
 want_arch=0
 want_deb=0
 publish=0
+publish_only=0
 selected=0
 for arg in "$@"; do
   case "$arg" in
@@ -42,6 +44,7 @@ for arg in "$@"; do
     --arch) want_arch=1; selected=1 ;;
     --deb) want_deb=1; selected=1 ;;
     --publish) publish=1 ;;
+    --publish-only) publish=1; publish_only=1; selected=1 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown option: $arg" >&2; usage >&2; exit 2 ;;
   esac
@@ -89,7 +92,7 @@ tar -czf "$SOURCE_PATH" \
   --transform="s,^\\./,rivalcfg-gui-${VERSION}/," \
   -C "$REPO" .
 
-if [[ "$want_rpm" == 1 ]]; then
+if [[ "$publish_only" == 0 && "$want_rpm" == 1 ]]; then
   command -v rpmbuild >/dev/null || { echo "RPM build requested but rpmbuild is unavailable" >&2; exit 1; }
   echo "[2/4] Building Fedora RPM"
   rpm_root="$WORK_DIR/rpm"
@@ -104,7 +107,7 @@ if [[ "$want_rpm" == 1 ]]; then
   find "$rpm_root/RPMS" "$rpm_root/SRPMS" -type f -name '*.rpm' -exec cp {} "$DIST_DIR/" \;
 fi
 
-if [[ "$want_arch" == 1 ]]; then
+if [[ "$publish_only" == 0 && "$want_arch" == 1 ]]; then
   command -v makepkg >/dev/null || { echo "Arch build requested but makepkg is unavailable" >&2; exit 1; }
   echo "[3/4] Building Arch package"
   arch_root="$WORK_DIR/arch"
@@ -116,7 +119,7 @@ if [[ "$want_arch" == 1 ]]; then
   find "$arch_root" -maxdepth 1 -type f -name 'rivalcfg-gui-*.pkg.tar.*' -exec cp {} "$DIST_DIR/" \;
 fi
 
-if [[ "$want_deb" == 1 ]]; then
+if [[ "$publish_only" == 0 && "$want_deb" == 1 ]]; then
   command -v dpkg-deb >/dev/null || { echo "Debian build requested but dpkg-deb is unavailable" >&2; exit 1; }
   echo "[4/4] Building Debian package"
   OUT_DIR="$DIST_DIR" VER="$VERSION" bash "$REPO/packaging/deb/build-deb.sh"
