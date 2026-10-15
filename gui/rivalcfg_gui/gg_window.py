@@ -268,6 +268,11 @@ class GGWindow(QMainWindow):
         right_layout.addWidget(revert_btn, 1)
         right_layout.addWidget(save_btn, 1)
 
+        # Keep the four bottom action buttons at the reference width instead
+        # of allowing the layout to collapse them to their label widths.
+        for action_button in (new_btn, configs_btn, revert_btn, save_btn):
+            action_button.setMinimumWidth(180)
+
         # Equal-width side sections keep the checkbox group centered against
         # the entire bottom bar, regardless of button-label widths.
         side_width = max(left_actions.sizeHint().width(), right_actions.sizeHint().width())
