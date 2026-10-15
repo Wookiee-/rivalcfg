@@ -253,13 +253,25 @@ class GGWindow(QMainWindow):
         checks_layout.addWidget(self.live_check)
         checks_layout.addWidget(self.persist_check)
 
-        bar.addWidget(new_btn)
-        bar.addWidget(configs_btn)
-        bar.addStretch(1)
-        bar.addWidget(checks)
-        bar.addStretch(1)
-        bar.addWidget(revert_btn)
-        bar.addWidget(save_btn)
+        left_actions = QWidget()
+        left_layout = QHBoxLayout(left_actions)
+        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.setSpacing(8)
+        left_layout.addWidget(new_btn)
+        left_layout.addWidget(configs_btn)
+
+        right_actions = QWidget()
+        right_layout = QHBoxLayout(right_actions)
+        right_layout.setContentsMargins(0, 0, 0, 0)
+        right_layout.setSpacing(8)
+        right_layout.addWidget(revert_btn)
+        right_layout.addWidget(save_btn)
+
+        # Equal-width side sections keep the checkbox group centered against
+        # the entire bottom bar, regardless of button-label widths.
+        bar.addWidget(left_actions, 1)
+        bar.addWidget(checks, 0, Qt.AlignCenter)
+        bar.addWidget(right_actions, 1)
         return bar
 
     def toggle_visible(self):
