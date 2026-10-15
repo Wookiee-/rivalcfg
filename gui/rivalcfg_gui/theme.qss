@@ -11,7 +11,7 @@ QFrame#metricCard:hover { background: #2b3743; border-color: #6683aa; }
 QLabel#metricLabel { color: #91a2b9; font-size: 10px; font-weight: 700; }
 QLineEdit#metricValue { background: #11161b; border-color: #4a596a; font-size: 14px; font-weight: 600; }
 QLineEdit#metricValue:focus { background: #4d709f; border-color: #d9e5f7; color: #ffffff; }
-QLabel#valueHint { color: #8999ad; font-size: 11px; }
+QLabel#valueHint { color: #aebbd0; font-size: 12px; }
 QLineEdit, QTextEdit, QComboBox, QSpinBox { background: #11161b; border: 1px solid #394550; border-radius: 3px; padding: 6px 8px; color: #e9edf2; selection-background-color: #4d709f; selection-color: white; }
 QLineEdit:hover, QTextEdit:hover, QComboBox:hover, QSpinBox:hover { border-color: #647386; }
 QLineEdit:focus, QTextEdit:focus, QComboBox:focus, QSpinBox:focus { border: 1px solid #8caad3; }
@@ -46,6 +46,6 @@ QScrollBar::handle:vertical { background: #536276; border-radius: 2px; min-heigh
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
 QSlider::groove:horizontal { height: 4px; background: #384858; border-radius: 2px; }
 QSlider::handle:horizontal { width: 14px; background: #ed5b0b; border-radius: 7px; margin: -5px 0; }
-QStatusBar { background: #1a2026; color: #91a0b1; border-top: 1px solid #303a44; }
+QStatusBar, QStatusBar QLabel { background: #1a2026; color: #c2cad5; font-size: 13px; border-top: 1px solid #303a44; }
 #diagramStage { background: #151b21; border-radius: 2px; border: 1px solid #303a44; }
 #footnote { color: #7e8ea2; font-size: 11px; }
