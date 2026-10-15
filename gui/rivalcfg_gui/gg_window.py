@@ -31,6 +31,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QFrame,
+    QGridLayout,
 )
 
 from . import backend
@@ -224,9 +225,9 @@ class GGWindow(QMainWindow):
                 edit.clear()  # hidden boxes must not leak stale DPI into SAVE
 
     def _bottom_bar(self):
-        bar = QHBoxLayout()
+        bar = QGridLayout()
         bar.setObjectName("bottomBar")
-        bar.setSpacing(8)
+        bar.setHorizontalSpacing(8)
         new_btn = QPushButton("+ NEW")
         new_btn.setObjectName("secondaryButton")
         new_btn.clicked.connect(self.on_new_profile)
@@ -269,9 +270,12 @@ class GGWindow(QMainWindow):
 
         # Equal-width side sections keep the checkbox group centered against
         # the entire bottom bar, regardless of button-label widths.
-        bar.addWidget(left_actions, 1)
-        bar.addWidget(checks, 0, Qt.AlignCenter)
-        bar.addWidget(right_actions, 1)
+        bar.setColumnStretch(0, 1)
+        bar.setColumnStretch(1, 1)
+        bar.setColumnStretch(2, 1)
+        bar.addWidget(left_actions, 0, 0, Qt.AlignLeft)
+        bar.addWidget(checks, 0, 1, Qt.AlignCenter)
+        bar.addWidget(right_actions, 0, 2, Qt.AlignRight)
         return bar
 
     def toggle_visible(self):
