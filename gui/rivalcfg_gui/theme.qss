@@ -52,5 +52,6 @@ QStatusBar { background: #1a2026; border-top: 1px solid #303a44; }
 QStatusBar QLabel { background: transparent; color: #c2cad5; font-size: 13px; border: 0; }
 QStatusBar::item { background: transparent; border: 0; }
 QLabel#firmwareStatus { background: transparent; border: 0; padding-left: 12px; }
+QLabel#deviceStatus { background: transparent; border: 0; padding-left: 12px; }
 #diagramStage { background: #151b21; border-radius: 2px; border: 1px solid #303a44; }
 #footnote { color: #7e8ea2; font-size: 11px; }

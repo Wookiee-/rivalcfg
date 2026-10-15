@@ -94,9 +94,12 @@ class GGWindow(QMainWindow):
         cols.addWidget(self._right_pane(), 1)
 
         root.addLayout(self._bottom_bar())
+        self.device_status = QLabel("")
+        self.device_status.setObjectName("deviceStatus")
         self.firmware_status = QLabel("")
         self.firmware_status.setObjectName("firmwareStatus")
         self.statusBar().setSizeGripEnabled(False)
+        self.statusBar().addWidget(self.device_status)
         self.statusBar().addPermanentWidget(self.firmware_status)
         self.refresh_devices()
         self.device_combo.currentIndexChanged.connect(self.on_device_changed)
@@ -325,6 +328,8 @@ class GGWindow(QMainWindow):
         if self.device_combo.count():
             self.on_device_changed(0)
         else:
+            self.device_status.clear()
+            self.firmware_status.clear()
             self.statusBar().showMessage("No plugged mouse — plug one in and press Refresh.")
 
     def _refresh_configs(self):
@@ -343,6 +348,14 @@ class GGWindow(QMainWindow):
         except Exception as e:
             QMessageBox.warning(self, "Unsupported device", str(e))
             return
+        device_name = data.get("name", self._profile.get("name", ""))
+        firmware_text = ""
+        marker = " (firmware "
+        if marker in device_name:
+            device_name, firmware_text = device_name.split(marker, 1)
+            firmware_text = f"Firmware {firmware_text.rstrip(')')}"
+        self.device_status.setText(device_name)
+        self.firmware_status.setText(firmware_text)
         self._rebuild()
 
     def _clear_layout(self, layout):
@@ -355,7 +368,6 @@ class GGWindow(QMainWindow):
         p = self._profile
         settings = p.get("settings", {})
         self.diagram.load(p.get("name", ""))
-        self.firmware_status.setText(p.get("name", ""))
 
         # left: single-column button remaps (GG-style ACTIONS list)
         self._clear_layout(self.left_buttons_host)
