@@ -270,6 +270,9 @@ class GGWindow(QMainWindow):
 
         # Equal-width side sections keep the checkbox group centered against
         # the entire bottom bar, regardless of button-label widths.
+        side_width = max(left_actions.sizeHint().width(), right_actions.sizeHint().width())
+        left_actions.setMinimumWidth(side_width)
+        right_actions.setMinimumWidth(side_width)
         bar.setColumnStretch(0, 1)
         bar.setColumnStretch(1, 1)
         bar.setColumnStretch(2, 1)
