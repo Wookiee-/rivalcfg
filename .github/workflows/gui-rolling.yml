@@ -1,0 +1,127 @@
+name: Build and publish rolling GUI packages
+
+on:
+  push:
+    branches:
+      - rivalcfg-gui
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-rpm:
+    name: Build Fedora RPM
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build package in Fedora
+        run: |
+          docker run --rm \
+            -v "$PWD:/workspace" \
+            -w /workspace \
+            fedora:latest \
+            bash -lc 'dnf install -y rpm-build systemd-rpm-macros python3-devel tar && ./scripts/build-packages.sh --rpm'
+
+      - name: Collect one RPM asset
+        run: |
+          mkdir -p release-assets
+          rpm_file="$(find dist/packages -type f -name '*.noarch.rpm' -print -quit)"
+          test -n "$rpm_file"
+          cp "$rpm_file" release-assets/rivalcfg-gui-fedora.rpm
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: rolling-fedora
+          path: release-assets/rivalcfg-gui-fedora.rpm
+          if-no-files-found: error
+          retention-days: 1
+
+  build-arch:
+    name: Build Arch package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build package in Arch Linux
+        run: |
+          docker run --rm \
+            -v "$PWD:/workspace" \
+            -w /workspace \
+            archlinux:latest \
+            bash -lc 'pacman -Syu --noconfirm base-devel python && useradd --create-home builder && chown -R builder:builder /workspace && su builder -c "./scripts/build-packages.sh --arch"'
+
+      - name: Collect one Arch asset
+        run: |
+          mkdir -p release-assets
+          arch_file="$(find dist/packages -type f -name '*.pkg.tar.*' -print -quit)"
+          test -n "$arch_file"
+          cp "$arch_file" release-assets/rivalcfg-gui-arch.pkg.tar.zst
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: rolling-arch
+          path: release-assets/rivalcfg-gui-arch.pkg.tar.zst
+          if-no-files-found: error
+          retention-days: 1
+
+  build-deb:
+    name: Build Debian package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build package in Debian
+        run: |
+          docker run --rm \
+            -v "$PWD:/workspace" \
+            -w /workspace \
+            debian:stable \
+            bash -lc 'apt-get update && apt-get install -y dpkg-dev bash ca-certificates tar && ./scripts/build-packages.sh --deb'
+
+      - name: Collect one Debian asset
+        run: |
+          mkdir -p release-assets
+          deb_file="$(find dist/packages -maxdepth 1 -type f -name '*.deb' -print -quit)"
+          test -n "$deb_file"
+          cp "$deb_file" release-assets/rivalcfg-gui-debian.deb
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: rolling-debian
+          path: release-assets/rivalcfg-gui-debian.deb
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    name: Update rolling release
+    runs-on: ubuntu-latest
+    needs: [build-rpm, build-arch, build-deb]
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: release-assets
+          pattern: rolling-*
+          merge-multiple: true
+
+      - name: List release assets
+        run: find release-assets -maxdepth 1 -type f -printf '%f\n' | sort
+
+      - name: Create or update rolling release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh release view rolling >/dev/null 2>&1; then
+            gh release create rolling \
+              --target "$GITHUB_SHA" \
+              --title "rivalcfg GUI Rolling" \
+              --notes "Latest GUI packages built from the rivalcfg-gui branch." \
+              --prerelease
+          else
+            gh release edit rolling --target "$GITHUB_SHA" --prerelease
+            gh release view rolling --json assets --jq '.assets[].name' | while IFS= read -r asset; do
+              gh release delete-asset rolling "$asset" --yes
+            done
+          fi
+          gh release upload rolling release-assets/* --clobber
