@@ -48,7 +48,9 @@ QScrollBar::handle:vertical { background: #536276; border-radius: 2px; min-heigh
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
 QSlider::groove:horizontal { height: 4px; background: #384858; border-radius: 2px; }
 QSlider::handle:horizontal { width: 14px; background: #ed5b0b; border-radius: 7px; margin: -5px 0; }
-QStatusBar, QStatusBar QLabel { background: #1a2026; color: #c2cad5; font-size: 13px; border-top: 1px solid #303a44; }
-QLabel#firmwareStatus { padding-left: 12px; }
+QStatusBar { background: #1a2026; border-top: 1px solid #303a44; }
+QStatusBar QLabel { background: transparent; color: #c2cad5; font-size: 13px; border: 0; }
+QStatusBar::item { background: transparent; border: 0; }
+QLabel#firmwareStatus { background: transparent; border: 0; padding-left: 12px; }
 #diagramStage { background: #151b21; border-radius: 2px; border: 1px solid #303a44; }
 #footnote { color: #7e8ea2; font-size: 11px; }
