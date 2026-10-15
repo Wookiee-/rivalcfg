@@ -98,7 +98,6 @@ class GGWindow(QMainWindow):
         self.firmware_status.setObjectName("firmwareStatus")
         self.statusBar().setSizeGripEnabled(False)
         self.statusBar().addPermanentWidget(self.firmware_status)
-        self.statusBar().showMessage("Ready")
         self.refresh_devices()
         self.device_combo.currentIndexChanged.connect(self.on_device_changed)
 
