@@ -246,8 +246,20 @@ class GGWindow(QMainWindow):
         save_btn.clicked.connect(self.on_save)
         self.persist_check = QCheckBox("Save to onboard")
         self.persist_check.setChecked(True)
-        for w in (new_btn, configs_btn, self.live_check, self.persist_check, revert_btn, save_btn):
-            bar.addWidget(w)
+        checks = QWidget()
+        checks_layout = QHBoxLayout(checks)
+        checks_layout.setContentsMargins(0, 0, 0, 0)
+        checks_layout.setSpacing(24)
+        checks_layout.addWidget(self.live_check)
+        checks_layout.addWidget(self.persist_check)
+
+        bar.addWidget(new_btn)
+        bar.addWidget(configs_btn)
+        bar.addStretch(1)
+        bar.addWidget(checks)
+        bar.addStretch(1)
+        bar.addWidget(revert_btn)
+        bar.addWidget(save_btn)
         return bar
 
     def toggle_visible(self):
