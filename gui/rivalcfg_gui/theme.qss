@@ -24,6 +24,8 @@ QComboBox#configList:hover, QComboBox#buttonMapping:hover { border-color: #64738
 QComboBox#configList:focus, QComboBox#buttonMapping:focus { border: 1px solid #8caad3; }
 QComboBox#configList::drop-down, QComboBox#buttonMapping::drop-down { width: 0; border: 0; }
 QComboBox#configList::down-arrow, QComboBox#buttonMapping::down-arrow { width: 0; height: 0; }
+QComboBox#deviceList::drop-down, QComboBox#pollingRate::drop-down { width: 0; border: 0; }
+QComboBox#deviceList::down-arrow, QComboBox#pollingRate::down-arrow { width: 0; height: 0; }
 QComboBox QAbstractItemView { background: #151b21; border: 1px solid #4a596a; selection-background-color: #4d709f; selection-color: white; }
 QPushButton { background: #303b47; border: 1px solid #465464; border-radius: 3px; padding: 7px 12px; color: #dfe6ee; font-weight: 500; }
 QPushButton:hover { background: #3b4857; border-color: #708198; }
@@ -47,5 +49,6 @@ QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
 QSlider::groove:horizontal { height: 4px; background: #384858; border-radius: 2px; }
 QSlider::handle:horizontal { width: 14px; background: #ed5b0b; border-radius: 7px; margin: -5px 0; }
 QStatusBar, QStatusBar QLabel { background: #1a2026; color: #c2cad5; font-size: 13px; border-top: 1px solid #303a44; }
+QLabel#firmwareStatus { padding-left: 12px; }
 #diagramStage { background: #151b21; border-radius: 2px; border: 1px solid #303a44; }
 #footnote { color: #7e8ea2; font-size: 11px; }

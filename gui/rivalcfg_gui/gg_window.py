@@ -71,6 +71,7 @@ class GGWindow(QMainWindow):
         top.setObjectName("deviceBar")
         top.setSpacing(10)
         self.device_combo = QComboBox()
+        self.device_combo.setObjectName("deviceList")
         self.device_combo.setMinimumWidth(320)
         self.device_combo.setMinimumHeight(38)
         refresh = QPushButton("Refresh")
@@ -93,6 +94,9 @@ class GGWindow(QMainWindow):
         cols.addWidget(self._right_pane(), 1)
 
         root.addLayout(self._bottom_bar())
+        self.firmware_status = QLabel("")
+        self.firmware_status.setObjectName("firmwareStatus")
+        self.statusBar().addPermanentWidget(self.firmware_status)
         self.statusBar().showMessage("Ready")
         self.refresh_devices()
         self.device_combo.currentIndexChanged.connect(self.on_device_changed)
@@ -212,6 +216,7 @@ class GGWindow(QMainWindow):
         polling_title.setObjectName("sectionHeader")
         layout.addWidget(polling_title)
         self.poll_combo = QComboBox()
+        self.poll_combo.setObjectName("pollingRate")
         self.poll_combo.setMinimumHeight(38)
         layout.addWidget(self.poll_combo)
         layout.addStretch(1)
@@ -350,7 +355,7 @@ class GGWindow(QMainWindow):
         p = self._profile
         settings = p.get("settings", {})
         self.diagram.load(p.get("name", ""))
-        self.statusBar().showMessage(p.get("name", ""))
+        self.firmware_status.setText(p.get("name", ""))
 
         # left: single-column button remaps (GG-style ACTIONS list)
         self._clear_layout(self.left_buttons_host)
