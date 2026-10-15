@@ -50,7 +50,7 @@ jobs:
             -v "$PWD:/workspace" \
             -w /workspace \
             archlinux:latest \
-            bash -lc 'pacman -Syu --noconfirm base-devel python && useradd --create-home builder && chown -R builder:builder /workspace && su builder -c "./scripts/build-packages.sh --arch"'
+            bash -lc 'pacman -Syu --noconfirm base-devel python && useradd --create-home builder && mkdir -p /workspace/dist && chown -R builder:builder /workspace/dist && su builder -c "./scripts/build-packages.sh --arch"'
 
       - name: Collect one Arch asset
         run: |
