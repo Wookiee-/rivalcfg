@@ -15,6 +15,10 @@ QLineEdit, QTextEdit, QComboBox, QSpinBox { background: #11161b; border: 1px sol
 QLineEdit:hover, QTextEdit:hover, QComboBox:hover, QSpinBox:hover { border-color: #647386; }
 QLineEdit:focus, QTextEdit:focus, QComboBox:focus, QSpinBox:focus { border: 1px solid #8caad3; }
 QComboBox::drop-down { width: 28px; border: 0; border-left: 1px solid #394550; }
+/* These left-pane fields are editable/display-only in the main workflow;
+   remove the unused native drop-down segment from their right edge. */
+QComboBox#configList::drop-down, QComboBox#buttonMapping::drop-down { width: 0; border: 0; }
+QComboBox#configList::down-arrow, QComboBox#buttonMapping::down-arrow { width: 0; height: 0; }
 QComboBox QAbstractItemView { background: #151b21; border: 1px solid #4a596a; selection-background-color: #4d709f; selection-color: white; }
 QPushButton { background: #303b47; border: 1px solid #465464; border-radius: 3px; padding: 7px 12px; color: #dfe6ee; font-weight: 500; }
 QPushButton:hover { background: #3b4857; border-color: #708198; }

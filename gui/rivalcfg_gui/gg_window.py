@@ -116,6 +116,7 @@ class GGWindow(QMainWindow):
         layout = QVBoxLayout(box)
         layout.setSpacing(8)
         self.config_list = QComboBox()
+        self.config_list.setObjectName("configList")
         self.config_list.setToolTip("Saved JSON profiles (~/.config/rivalcfg-gui/profiles/)")
         layout.addWidget(QLabel("Configuration:"))
         layout.addWidget(self.config_list)
