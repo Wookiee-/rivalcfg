@@ -258,15 +258,15 @@ class GGWindow(QMainWindow):
         left_layout = QHBoxLayout(left_actions)
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_layout.setSpacing(8)
-        left_layout.addWidget(new_btn)
-        left_layout.addWidget(configs_btn)
+        left_layout.addWidget(new_btn, 1)
+        left_layout.addWidget(configs_btn, 1)
 
         right_actions = QWidget()
         right_layout = QHBoxLayout(right_actions)
         right_layout.setContentsMargins(0, 0, 0, 0)
         right_layout.setSpacing(8)
-        right_layout.addWidget(revert_btn)
-        right_layout.addWidget(save_btn)
+        right_layout.addWidget(revert_btn, 1)
+        right_layout.addWidget(save_btn, 1)
 
         # Equal-width side sections keep the checkbox group centered against
         # the entire bottom bar, regardless of button-label widths.
