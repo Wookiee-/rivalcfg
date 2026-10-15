@@ -127,6 +127,7 @@ class GGWindow(QMainWindow):
         # Compact single-column remaps (the supported profiles fit without a
         # scrollbar; the advanced editor remains in the fixed footer below).
         host_wrap = QWidget()
+        host_wrap.setObjectName("leftButtonsHost")
         self.left_buttons_host = QVBoxLayout(host_wrap)
         self.left_buttons_host.setContentsMargins(0, 0, 0, 0)
         self.left_buttons_host.setSpacing(8)

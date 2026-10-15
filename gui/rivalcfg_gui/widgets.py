@@ -126,6 +126,7 @@ class ButtonsEditor(QWidget):
 
     def __init__(self, buttons_dict, default_text="", parent=None, columns=2, show_advanced=True):
         super().__init__(parent)
+        self.setObjectName("buttonsEditor")
         self._buttons_dict = buttons_dict  # {"Button1": {...}, ...} from profile
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
