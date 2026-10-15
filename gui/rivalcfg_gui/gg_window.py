@@ -96,6 +96,7 @@ class GGWindow(QMainWindow):
         root.addLayout(self._bottom_bar())
         self.firmware_status = QLabel("")
         self.firmware_status.setObjectName("firmwareStatus")
+        self.statusBar().setSizeGripEnabled(False)
         self.statusBar().addPermanentWidget(self.firmware_status)
         self.statusBar().showMessage("Ready")
         self.refresh_devices()
