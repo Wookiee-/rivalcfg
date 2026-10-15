@@ -142,6 +142,8 @@ class ButtonsEditor(QWidget):
             combo = QComboBox()
             combo.setEditable(True)
             combo.setObjectName("buttonMapping")
+            if columns <= 1:
+                combo.setFixedWidth(128)
             combo.addItems(diagram.COMMON_TARGETS)
             combo.setToolTip("Pick a target or type any keyboard key (e.g. A, F5, semicolon) or multimedia key.")
             combo.currentTextChanged.connect(self._sync_to_text)
